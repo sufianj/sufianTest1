@@ -1,0 +1,1 @@
+Please export /Server/piecetheatre.sql.zip to localhost/piecetheatre before running the server
