@@ -200,7 +200,7 @@ public class Server {
                         socket.close();
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }//end catch
+                    }
                 }//end finally 
         }//end run
     }//end class protocol thread
