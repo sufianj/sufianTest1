@@ -1,0 +1,438 @@
+===============================
+1. 通过文件的特征查找：
+===============================
+
+1) 按文件名
+   find /    -name httpd.conf
+   find /usr -name httpd.conf
+   find /etc -name '*srm*'
+
+2) 按大小
+   find / -size 1500c      # 查找文件大小为1,500 bytes的文件，字符 c 表明这个要查找的文件的大小是以bytes为单位。
+   find/ -size +10000000c  # "+”是表示要求系统只列出大于指定大小的文件,  "-”表示小于
+   find / -empty           # 查找在系统中为空的文件或者文件夹
+
+   -size：表示文件大小，＋表示大于某个数，－表示小于某个数。c表示单位是字节，你可以将c换成k,M,G。
+
+3) 按时间
+   find / -amin -10        # 查找在系统中最后10分钟访问的文件
+   find / -atime -2        # 查找在系统中最后48小时访问的文件
+
+   find / -mmin -5         # 查找在系统中最后5分钟里修改过的文件
+   find / -mtime -1        # 查找在系统中最后24小时里修改过的文件
+
+   find / -cmin -5         # 查找在系统中最后5分钟里被改变状态的文件
+   find / -ctime -1        # 查找在系统中最后24小时里被改变状态的文件
+   
+  访问过用amin，修改过用mmin，文件状态改变过用cmin
+  精确到分钟的用amin,mmin,cmin，精确到天的用atime,mtime,ctime
+  在5分钟之内的用-5，在5分钟以上的用＋5
+
+4) 按用户
+   find / -user fred       # 查找在系统中属于FRED这个用户的文件
+   find / -group cat       # 查找在系统中属于 groupcat的文件
+   find / -nouser          # 查找在系统中属于作废用户的文件
+  
+5) 其他
+   -false 查找系统中总是错误的文件
+   -fstype type 查找系统中存在于指定文件系统的文件，例如：ext2 .
+   -gid n 查找系统中文件数字组 ID 为 n的文件
+   -group gname 查找系统中文件属于gnam文件组，并且指定组和ID的文件
+  
+
+
+===============================
+2. 通过文件的特征查找：
+===============================
+
+Find命令也提供给用户一些特有的选项来控制查找操作。下表就是我们总结出的最基本，最常用的find命令的控制选项及其用法。
+
+   选项               用途描述
+-daystart     .   .测试系统从今天开始24小时以内的文件，用法类似-amin
+-depth             使用深度级别的查找过程方式,在某层指定目录中优先查找文件内容
+-follow            遵循通配符链接方式查找; 另外，也可忽略通配符链接方式查询
+
+-maxdepth levels   在某个层次的目录中按照递减方法查找
+-mount             不在文件系统目录中查找， 用法类似 -xdev.
+-noleaf            禁止在非UNUX文件系统，MS-DOS系统，CD-ROM文件系统中进行最优化查找
+
+-help              显示命令摘要
+-version           打印版本数字
+
+
+使用-follow选项后，find命令则遵循通配符链接方式进行查uuuu找，除非你指定这个选项，否则一般情况下find命令将忽略通配符链接方式进行文件查找。
+
+-maxdepth选项的作用就是限制find命令在目录中按照递减方式查找文件的时候搜索文件超过某个级别或者搜索过多的目录，这样导致查找速度变慢，查找花费的时间过多。例如，我们要在当前(.)目录技巧子目录中查找一个名叫fred的文件，我们可以使用如下命令
+find . -maxdepth 2 -name fred
+
+假如这个fred文件在./sub1/fred目录中，那么这个命令就会直接定位这个文件，查找很容易成功。假如，这个文件在./sub1/sub2 /fred目录中，那么这个命令就无法查找到。因为前面已经给find命令在目录中最大的查询目录级别为2，只能查找2层目录下的文件。这样做的目的就是为了让find命令更加精确的定位文件，如果你已经知道了某个文件大概所在的文件目录级数，那么加入-maxdepth n 就很快的能在指定目录中查找成功。
+
+
+===============================
+3. 使用混合查找方式：
+===============================
+
+find /tmp -size +10000000c -and -mtime +2       // -and
+find /    -user fred       -or -user george     // -or   在/tmp目录中查找属于fred或者george这两个用户的文件
+find /tmp ! -user panda                         // -or   在/tmp目录中查找所有不属于panda的文件
+命令就可以解决了。很简单。
+
+
+
+
+
+
+查找并显示文件的方法
+查找到某个文件是我们的目的，我们更想知道查找到的文件的详细信息和属性，
+find / -name "httpd.conf" -ls
+
+
+下面的表格就是一些常用的查找文件并显示文件信息的参数和使用方法
+选项      用途描述
+-exec command;   查找并执行命令
+-fprint file   打印文件完整文件名
+-fprint0 file   打印文件完整文件名包括空的文件
+-fprintf file format     打印文件格式
+-ok command;             给用户命令执行操作，根据用户的Y 确认输入执行
+-printf format           打印文件格式
+-ls                      打印同种文件格式的文件.
+
+
+
+
+
+===============================
+2. 普通用户无错误查找：
+===============================
+
+    find / -name access_log 2>/dev/null
+
+    说明：当普通用户使用"find”命令来查询某些没有相应权限文件目录时（Linux系统中系统管理员ROOT可以把某些文件目录设置成禁止访问模式）
+，往往会出现"Permissiondenied."（禁止访问）字样。 2>/dev/null就是表明系统将把错误信息输送到stderrstream 2中.
+
+
+--------------------------------
+-exec command; 
+--------------------------------
+删除一个目录中的全部文件
+cd “目的目录”
+find . -name * -exec rm -f {} \;
+
+
+
+-exec 参数后面跟的是 command命令，注意如下几点：
+
+1) command命令的终止，使用 ';' (分号）来判定，在后面必须有一个 ';'
+   出于不明原因， ';'需要用'\'来转义  ,所以命令整体形式为: -exec rm -f {} \;
+
+2) '{}'，使用{}来表示文件名，也就是find前面处理过程中过滤出来的文件，用于command命令进行处理
+
+
+
+1.查询所有保护字符串“Hello”的文件
+
+find / -exec grep "Hello" {} \;
+
+2.删除所有临时文件
+
+find / -name "*.tmp" -exec rm -f {} \;
+
+
+3. 使用混合查找方式：
+===============================
+
+find /tmp -size +10000000c -and -mtime +2       // -and
+find /    -user fred       -or -user george     // -or   在/tmp目录中查找属于fred或者george这两个用户的文件
+find /tmp ! -user panda                         // -or   在/tmp目录中查找所有不属于panda的文件
+命令就可以解决了。很简单。
+
+
+这样出错
+
+我系统是REDHAT AS4
+
+我用这样可以
+
+find /tmp !  \( -user 0 -o -user 500 -o -user 501 \) -exec ls -l {} \;
+
+把用户名改成UID就可以了
+
+
+
+find / -name access_log 2>/dev/null
+find /etc -name ‘*srm*’
+find / -amin -10 # 查找在系统中最后10分钟访问的文件
+find / -atime -2 # 查找在系统中最后48小时访问的文件
+find / -mmin -5 # 查找在系统中最后5分钟里修改过的文件
+find / -mtime -1 #查找在系统中最后24小时里修改过的文件
+find / -cmin -5 # 查找在系统中最后5分钟里被改变状态的文件
+find / -ctime -1 #查找在系统中最后24小时里被改变状态的文件
+find / -user reda #查找在系统中属于fred这个用户的文件
+find / -not -user reda #查找在系统中不属于FRED这个用户的文件
+find / -group redagrp # 查找在系统中属于redagrp组的文件
+find / -gid 501 #查找系统中属于组id为501的文件
+find / -user fred -a -group redagrp
+find / -user reda -o -user tracy
+find / -nouser #查找在系统中属于作废用户的文件
+find / -empty # 查找在系统中为空的文件或者为空的文件夹
+find / -false #查找系统中总是错误的文件
+find / -size +5k #查找系统中大于5k字节的文件
+find / -size +5c #查找系统中大于5字节的文件
+find / -perm +6000
+find / -type b
+
+文件类型:
+b   块(缓冲)设备.
+c   字符设备.
+d   目录.
+p   有名管道(FIFO).
+f    规则文件.
+l    符号链结.
+s    SOCKET.
+find / -maxdepth 2 -name fred
+find /tmp -size +10000000c -and -mtime +2
+find / -user reda -or -user tracy
+find /tmp ! -user reda
+find / -name "httpd.conf" -ls
+find / -user reda -exec ls -l {} \;
+find / -user reda -ok #确认后执行
+find / -user reda | xargs ls -l
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This article is written by SathiyaMoorthy
+作者： SathiyaMoorthy
+
+Apart from thebasic operation of looking for files under a directory structure, youcan also perform several practical operations using find command thatwill make your command line journey easy.
+Find命令除了在目录结构中查找文件之外，还可以用来做一些其他比较有实际意义的操作。
+
+In this article, let us review 15 practical examples of Linux find command that will be very useful to both newbies and experts.
+本文中的15条tips，对老鸟和菜鸟都会很有帮助
+
+First, create the following sampleempty files under your home directory to try some of the find commandexamples mentioned below.
+首先在你的HOME目录下建立一些空的文件，并尝试下面的一些命令。
+# vim create_sample_files.sh  //使用vi创建文件，并输入下面的内容
+touch MybashProgram.sh
+touch mycprogram.c
+touch MyCProgram.c
+touch Program.c
+
+mkdir backup
+cd backup
+
+touch MybashProgram.sh
+touch mycprogram.c
+touch MyCProgram.c
+touch Program.c
+
+# chmod +x create_sample_files.sh  //添加可运行属性
+
+# ./create_sample_files.sh                //运行脚本
+
+# ls -R                                                  //查看执行的结果
+.:
+backup                  MybashProgram.sh  MyCProgram.c
+create_sample_files.sh  mycprogram.c      Program.c
+
+./backup:
+MybashProgram.sh  mycprogram.c  MyCProgram.c  Program.c1. Find Files Using Name 根据文件名查找This is a basic usage of the find command. This example finds allfiles with name ? MyCProgram.c in the current directory and all it’ssub-directories.
+这个是Find命令最基本的操作，下面的例子是在当前目录和它所有子目录中查找MyCProgramm.c
+# find -name "MyCProgram.c"
+./backup/MyCProgram.c
+./MyCProgram.c2. Find Files Using Name and Ignoring Case 在1的基础上忽略文件名的大小写This is a basic usage of the find command. This example finds allfiles with name ? MyCProgram.c (ignoring the case) in the currentdirectory and all it’s sub-directories.
+这也是Find命令的基本操作之一.下面的例子是在当前目录及所有子目录中查找MyCProgram.c(忽略大小写)
+# find -iname "MyCProgram.c"
+./mycprogram.c
+./backup/mycprogram.c
+./backup/MyCProgram.c
+./MyCProgram.c3. Limit Search To Specific Directory Level Using mindepth and maxdepth     查找指定目录并且设置查找的目录深度
+Find the passwd file under all sub-directories starting from root directory.
+下面的例子是在根目录及所有子目录中查找passwd文件
+# find / -name passwd
+./usr/share/doc/nss_ldap-253/pam.d/passwd
+./usr/bin/passwd
+./etc/pam.d/passwd
+./etc/passwd
+Find the passwd file under root and one level down. (i.e root ? level 1, and one sub-directory ? level 2)
+查找根目录和根目录的和只展开一级的子目录中查找# find -maxdepth 2 -name passwd
+./etc/passwd
+Find the passwd file under root and two levels down. (i.e root ? level 1, and two sub-directories ? level 2 and 3 )
+在根目录和根目录下展开两级查找passwd文件
+# find / -maxdepth 3 -name passwd
+./usr/bin/passwd
+./etc/pam.d/passwd
+./etc/passwd
+Find the password file between sub-directory level 2 and 4.
+在根目录的第二级和第四级之间查找
+# find -mindepth 3 -maxdepth 5 -name passwd
+./usr/bin/passwd
+./etc/pam.d/passwd4. Executing Commands on the Files Found by the Find Command.     查找到文件后，执行其他的命令
+In the example below, the find command calculates the md5sum of allthe files with the name MyCProgram.c (ignoring case). {} is replaced bythe current file name.
+下面的例子展示了在查找到文件后，计算文件的MD5值
+# find -iname "MyCProgram.c" -exec md5sum {} \;
+d41d8cd98f00b204e9800998ecf8427e  ./mycprogram.c
+d41d8cd98f00b204e9800998ecf8427e  ./backup/mycprogram.c
+d41d8cd98f00b204e9800998ecf8427e  ./backup/MyCProgram.c
+d41d8cd98f00b204e9800998ecf8427e  ./MyCProgram.c5. Inverting the match. 查找不匹配的文件Shows the files or directories whose name are not MyCProgram.c.Since the maxdepth is 1, this will look only under current directory.
+查找文件名不是MyCProgramm.c的文件，注意由于maxdepth是1,将只在当前目录中查找。
+# find -maxdepth 1 -not -iname "MyCProgram.c"
+.
+./MybashProgram.sh
+./create_sample_files.sh
+./backup
+./Program.c6. Finding Files by its inode Number. 根据inode number查找Every file has an unique inode number, using that we can identifythat file. Create two files with similar name. i.e one file with aspace at the end.
+某些时候，有些文件的文件名非常相似，肉眼比较难以分辨，这时候可以根据他们唯一的inode number进行查找
+# touch "test-file-name"
+
+# touch "test-file-name "         //这个文件名最后有一个空格
+[Note: There is a space at the end]
+
+# ls -1 test*
+test-file-name
+test-file-name
+
+From the ls output, you cannot identify which file has the spaceat the end. Using option -i, you can view the inode number of the file,which will be different for these two files.
+使用ls命令查看的时候，我们不能分辨这两个文件，使用ls命令的选项-i则可以查看他们的inode number
+# ls -i1 test*
+16187429 test-file-name
+16187430 test-file-name
+You can specify inode number on a find command as shown below.In this example, find command renames a file using the inode number.
+在使用find命令的时候可以指定inode number
+# find -inum 16187430 -exec mv {} new-test-file-name \;
+
+# ls -i1 *test*
+16187430 new-test-file-name
+16187429 test-file-name
+You can use this technique when you want to do some operationwith the files which are named poorly as shown in the example below.For example, the file with name ? file?.txt has a special character init. If you try to execute “rm file?.txt”, all the following three fileswill get removed. So, follow the steps below to delete only the“file?.txt” file.
+这个技巧还可以适用于当文件名中存在特殊字符的情况
+# ls
+file1.txt  file2.txt  file?.txt
+Find the inode numbers of each file.# ls -i1
+804178 file1.txt
+804179 file2.txt
+804180 file?.txt
+Use the inode number to remove the file that had special character in it as shown below.
+使用inodenumber删除包含特殊字符的文件
+# find -inum 804180 -exec rm {} \;
+
+# ls
+file1.txt  file2.txt
+[Note: The file with name "file?.txt" is now removed]
+7. Find file based on the File-Permissions根据文件的权限查找
+Following operations are possible.
+可以进行以下的这几种操作
+Find files that match exact permission
+Check whether the given permission matches, irrespective of other permission bits
+Search by giving octal / symbolic representation
+
+For this example, let us assume that the directory contains thefollowing files. Please note that the file-permissions on these filesare different.
+# ls -l
+total 0
+-rwxrwxrwx 1 root root 0 2009-02-19 20:31 all_for_all
+-rw-r--r-- 1 root root 0 2009-02-19 20:30 everybody_read
+---------- 1 root root 0 2009-02-19 20:31 no_for_all
+-rw------- 1 root root 0 2009-02-19 20:29 ordinary_file
+-rw-r----- 1 root root 0 2009-02-19 20:27 others_can_also_read
+----r----- 1 root root 0 2009-02-19 20:27 others_can_only_read
+Find files which has read permission to group. Use the followingcommand to find all files that are readable by the world in your homedirectory, irrespective of other permissions for that file.
+# find . -perm -g=r -type f -exec ls -l {} \;
+-rw-r--r-- 1 root root 0 2009-02-19 20:30 ./everybody_read
+-rwxrwxrwx 1 root root 0 2009-02-19 20:31 ./all_for_all
+----r----- 1 root root 0 2009-02-19 20:27 ./others_can_only_read
+-rw-r----- 1 root root 0 2009-02-19 20:27 ./others_can_also_read
+Find files which has read permission only to group.
+# find . -perm g=r -type f -exec ls -l {} \;
+----r----- 1 root root 0 2009-02-19 20:27 ./others_can_only_read
+Find files which has read permission only to group [ search by octal ]
+# find . -perm 040 -type f -exec ls -l {} \;
+----r----- 1 root root 0 2009-02-19 20:27 ./others_can_only_read8. Find all empty files (zero byte file) in your home directory and it’s subdirectoryMost files of the following command output will be lock-files and place holders created by other applications.
+# find ~ -empty
+List all the empty files only in your home directory.
+# find . -maxdepth 1 -empty
+List only the non-hidden empty files only in the current directory.
+# find . -maxdepth 1 -empty -not -name ".*"9. Finding the Top 5 Big FilesThe following command will display the top 5 largest file in thecurrent directory and it’s subdirectory. This may take a while toexecute depending on the total number of files the command has toprocess.
+# find . -type f -exec ls -s {} \; | sort -n -r | head -510. Finding the Top 5 Small FilesTechnique is same as finding the bigger files, but the only difference the sort is ascending order.
+# find . -type f -exec ls -s {} \; | sort -n  | head -5
+In the above command, most probably you will get to see only theZERO byte files ( empty files ). So, you can use the following commandto list the smaller files other than the ZERO byte files.
+# find . -not -empty -type f -exec ls -s {} \; | sort -n  | head -511. Find Files Based on file-type using option -typeFind only the socket files.
+# find . -type s
+Find all directories
+# find . -type d
+Find only the normal files
+# find . -type f
+Find all the hidden files
+# find . -type f -name ".*"
+Find all the hidden directories
+# find -type d -name ".*"12. Find files by comparing with the modification time of other file.Show files which are modified after the specified file. Thefollowing find command displays all the files that are created/modifiedafter ordinary_file.
+# ls -lrt
+total 0
+-rw-r----- 1 root root 0 2009-02-19 20:27 others_can_also_read
+----r----- 1 root root 0 2009-02-19 20:27 others_can_only_read
+-rw------- 1 root root 0 2009-02-19 20:29 ordinary_file
+-rw-r--r-- 1 root root 0 2009-02-19 20:30 everybody_read
+-rwxrwxrwx 1 root root 0 2009-02-19 20:31 all_for_all
+---------- 1 root root 0 2009-02-19 20:31 no_for_all
+
+# find -newer ordinary_file
+.
+./everybody_read
+./all_for_all
+./no_for_all13. Find Files by SizeUsing the -size option you can find files by size.
+
+Find files bigger than the given size
+# find ~ -size +100M
+Find files smaller than the given size
+# find ~ -size -100M
+Find files that matches the exact given size
+# find ~ -size 100M
+Note: ? means less than the give size, + means more than the given size, and no symbol means exact given size.
+14. Create Alias for Frequent Find OperationsIf you find some thing as pretty useful, then you can make it as an alias. And execute it whenever you want.
+
+Remove the files named a.out frequently.
+# alias rmao="find . -iname a.out -exec rm {} \;"
+# rmao
+
+Remove the core files generated by c program.
+# alias rmc="find . -iname core -exec rm {} \;"
+# rmc
+15. Remove big archive files using find commandThe following command removes *.zip files that are over 100M.
+# find / -type f -name *.zip -size +100M -exec rm -i {} \;"
+Remove all *.tar file that are over 100M using the alias rm100m(Remove 100M). Use the similar concepts and create alias like rm1g,rm2g, rm5g to remove file size greater than 1G, 2G and 5G respectively.
+# alias rm100m="find / -type f -name *.tar -size +100M -exec rm -i {} \;"
+# alias rm1g="find / -type f -name *.tar -size +1G -exec rm -i {} \;"
+# alias rm2g="find / -type f -name *.tar -size +2G -exec rm -i {} \;"
+# alias rm5g="find / -type f -name *.tar -size +5G -exec rm -i {} \;"
+
+# rm100m
+# rm1g
+# rm2g
+# rm5g
+
+This article was written by SathiyaMoorthy, author of numbertotext Vim plugin, which will replace the numbers with the equivalent text inside Vim. The Geek Stuff welcomes your tips and guest articles.
+
+Howdo you use find command? What is your favorite find command example?Please leave a comment and let us know. Also, if you would like to knowhow to use find command under a specific scenario, please let us knowyour questions in the comments section.

@@ -1,0 +1,18 @@
+Students in my group who have not only made ​​the graded lab should send me (subject: [II.2408] [TP-R] $ {LOGIN}) with $ {LOGIN} your unix login the following task: 
+
+- Give the command line that allows to know the number of connections of type 'tcp' active (with netstat). 
+
+- Make a script that copies the last 10 lines of all files ending in "log." In a file whose name is Log-recent-YYYY-MM-DD-HH-MM.txt.gz 
+with YYY-MM-DD HH-MM-date at the time of launching the command. This file should be compressed with gzip and put control in the directory ~ /. Logs unless LOGS_DIR environment variable is set. 
+
+- Make a script that records the result of a file Big process.log ten processes that are consuming the most memory. 
+
+
+- Assuming the existence of a command "convert" as "convert UNFICHIER.jpg UNFICHIER.png" UNFICHIER.png creates the file in PNG format from the existing file UNFICHIER.jpg in jpeg format. 
+Make a script that launched the site root www.banksy.co.uk (see http://educ.isep.fr/moodle/file.php/193/Cours-unix/banksy.zip ) 
+- Convert to PNG format all images Site 
+- Amends all html files on this site. 
+
+Good weekend! 
+
+Bernard Hugueney 
